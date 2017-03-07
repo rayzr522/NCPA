@@ -3,10 +3,4 @@ name: NCPA
 version: 1.0.0
 description: Automatically temp-ban after a certain number of NCP violations.
 author: Rayzr
-#depend: [CreativelyNamedLib]
-#commands:
-#  ncpa:
-#    description: NCPA main command
-#    aliases: [alias1,alias2]
-#    usage: "/ncpa [command]"
-#    permission: NCPA.main
+depend: [NoCheatPlus]

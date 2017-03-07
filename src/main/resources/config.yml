@@ -1,0 +1,11 @@
+# How many violations should merit a temp-ban? (default: 5)
+violations: 5
+
+# How long should the ban last? (default: 7 [days])
+ban-duration: 7
+
+# What should the ban message be? (default: "&6You have been temporarily banned for hacking! This ban lasts &c{time}&6 days")
+ban-message: "&6You have been temporarily banned for hacking! This ban lasts &c{time}&6 days"
+
+# Should the server ban by IP? (default: false)
+ip-ban: false
