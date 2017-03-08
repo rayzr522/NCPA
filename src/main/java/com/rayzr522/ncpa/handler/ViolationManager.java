@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.lang.time.DateUtils;
+import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -106,13 +107,20 @@ public class ViolationManager {
 
             int banDuration = config.getInt("ban-duration");
 
-            String message = VIOLATION_IDENTIFIER + StringUtils.replaceVariables(config.getString("ban-message"), player, type, banDuration);
+            String message = getBanMessage(player, type, banDuration);
 
             player.kickPlayer(message);
             provider.tempBan(player, message, DateUtils.addDays(new Date(), banDuration));
 
             setViolations(player.getUniqueId(), 0);
         }
+    }
+
+    private String getBanMessage(Player player, CheckType hackType, int days) {
+        return ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("ban-message"))
+                .replace("{hack}", hackType.getName().toUpperCase().replace(".", "-"))
+                .replace("{user}", player.getDisplayName())
+                .replace("{time}", Integer.toString(days));
     }
 
 }

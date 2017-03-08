@@ -4,16 +4,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
 
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.rayzr522.ncpa.handler.PlayerListener;
 import com.rayzr522.ncpa.handler.ViolationManager;
-
-import fr.neatmonster.nocheatplus.checks.CheckType;
 
 /**
  * @author Rayzr
@@ -33,19 +28,6 @@ public class NCPA extends JavaPlugin {
     @Override
     public void onDisable() {
         violations.onDisable();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.bukkit.plugin.java.JavaPlugin#onCommand(org.bukkit.command.CommandSender, org.bukkit.command.Command, java.lang.String, java.lang.String[])
-     */
-    @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        Player p = (Player) sender;
-        violations.setViolations(p.getUniqueId(), 5000);
-        violations.checkViolations(p, CheckType.INVENTORY_INSTANTEAT);
-        return true;
     }
 
     /**
