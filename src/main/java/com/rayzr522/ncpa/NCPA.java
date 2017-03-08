@@ -2,59 +2,50 @@ package com.rayzr522.ncpa;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 import java.util.logging.Level;
 
-import org.apache.commons.lang.time.DateUtils;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.rayzr522.ncpa.ban.BanProvider;
-import com.rayzr522.ncpa.ban.BanProviderIP;
-import com.rayzr522.ncpa.ban.BanProviderName;
+import com.rayzr522.ncpa.handler.PlayerListener;
+import com.rayzr522.ncpa.handler.ViolationManager;
 
 import fr.neatmonster.nocheatplus.checks.CheckType;
-import fr.neatmonster.nocheatplus.checks.access.IViolationInfo;
-import fr.neatmonster.nocheatplus.hooks.NCPHook;
-import fr.neatmonster.nocheatplus.hooks.NCPHookManager;
 
 /**
  * @author Rayzr
  */
 public class NCPA extends JavaPlugin {
-    private Map<UUID, Integer> violations = new HashMap<>();
 
-    private BanProvider nameBan = new BanProviderName();
-    private BanProvider ipBan = new BanProviderIP();
+    private ViolationManager violations;
 
     @Override
     public void onEnable() {
         reload();
-        NCPHookManager.addHook(CheckType.ALL, new NCPHook() {
-            @Override
-            public boolean onCheckFailure(CheckType type, Player player, IViolationInfo info) {
-                setViolations(player.getUniqueId(), getViolations(player.getUniqueId()) + 1);
-                return false;
-            }
 
-            @Override
-            public String getHookVersion() {
-                return getDescription().getVersion();
-            }
-
-            @Override
-            public String getHookName() {
-                return "[NCPA] Violation Listener";
-            }
-        });
+        violations = new ViolationManager(this);
+        getServer().getPluginManager().registerEvents(new PlayerListener(), this);
     }
 
     @Override
     public void onDisable() {
+        violations.onDisable();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.bukkit.plugin.java.JavaPlugin#onCommand(org.bukkit.command.CommandSender, org.bukkit.command.Command, java.lang.String, java.lang.String[])
+     */
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        Player p = (Player) sender;
+        violations.setViolations(p.getUniqueId(), 5000);
+        violations.checkViolations(p, CheckType.INVENTORY_INSTANTEAT);
+        return true;
     }
 
     /**
@@ -98,30 +89,6 @@ public class NCPA extends JavaPlugin {
      */
     public File getFile(String path) {
         return new File(getDataFolder(), path.replace('/', File.separatorChar));
-    }
-
-    public void setViolations(UUID id, int amount) {
-        violations.put(id, amount);
-    }
-
-    public int getViolations(UUID id) {
-        if (!violations.containsKey(id)) {
-            setViolations(id, 0);
-        }
-        return violations.get(id);
-    }
-
-    public void checkViolations(Player player) {
-        int violations = getViolations(player.getUniqueId());
-
-        if (violations >= getConfig().getInt("violations")) {
-            BanProvider provider = (getConfig().getBoolean("ip-ban") ? ipBan : nameBan);
-
-            provider.tempBan(player, getConfig().getString("ban-message"),
-                    DateUtils.addDays(new Date(), getConfig().getInt("ban-duration")));
-
-            setViolations(player.getUniqueId(), 0);
-        }
     }
 
 }
